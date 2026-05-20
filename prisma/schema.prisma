@@ -1,0 +1,54 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id          String       @id @default(cuid())
+  name        String
+  score       Int          @default(0)
+  isBanned    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+}
+
+model Puzzle {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  type            String       @default("puzzle")        // "puzzle" or "trivia"
+  title           String
+  question        String
+  answer          String
+  points          Int          @default(10)
+  hint            String?
+  category        String?                               // e.g., "history", "science", "riddle"
+  difficulty      String       @default("medium")        // "easy", "medium", "hard"
+  imageUrl        String?
+  
+  // For trivia: multiple choice options
+  choices         String?                               // JSON: ["option1", "option2", "option3", "option4"]
+  explanation     String?                               // Why the answer is correct
+  
+  submissions     Submission[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  playerId  String
+  puzzleId  String
+  correct   Boolean
+  attempts  Int      @default(1)
+  timeSpent Int?                                        // seconds
+  createdAt DateTime @default(now())
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, puzzleId])
+}

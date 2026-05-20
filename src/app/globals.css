@@ -1,0 +1,83 @@
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --hq-primary: #7C3AED;
+  --hq-secondary: #F59E0B;
+  --hq-accent: #10B981;
+  --hq-danger: #EF4444;
+  --hq-bg: #0F0A1E;
+  --hq-surface: #1A1035;
+  --hq-surface2: #241847;
+  --hq-text: #F3F0FF;
+  --hq-muted: #9B8EC4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--hq-bg);
+  color: var(--hq-text);
+  min-height: 100vh;
+  font-family: var(--font-body), sans-serif;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.10) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239B8EC4' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+/* Glowing border effect */
+.glow-border {
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4), inset 0 0 20px rgba(124, 58, 237, 0.05);
+}
+
+.glow-gold {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 20px rgba(245, 158, 11, 0.05);
+}
+
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+/* Card style */
+.quest-card {
+  background: linear-gradient(135deg, var(--hq-surface), var(--hq-surface2));
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 1.25rem;
+}
+
+/* Shimmer button */
+.btn-shimmer {
+  background: linear-gradient(90deg, #7C3AED, #A855F7, #7C3AED);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--hq-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--hq-primary);
+  border-radius: 3px;
+}
+
+/* Rank badge colors */
+.rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+.rank-2 { background: linear-gradient(135deg, #C0C0C0, #A8A8A8); color: #000; }
+.rank-3 { background: linear-gradient(135deg, #CD7F32, #A0522D); color: #fff; }
