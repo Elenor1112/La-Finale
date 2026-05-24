@@ -519,7 +519,7 @@ export default function AdminPuzzlesPage() {
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="font-display text-4xl text-white">Puzzle & Trivia Library</h1>
-          <p className="text-purple-300 mt-2">Search, filter, and manage your quests with quick QR access.</p>
+          <p className="text-purple-300 mt-2">Search, filter, and manage legacy quests. Hub QR codes live under Game Hubs.</p>
         </div>
         <button
           onClick={() => {
@@ -584,7 +584,7 @@ export default function AdminPuzzlesPage() {
             </div>
 
             <div className="border-t border-white/10 px-5 py-4 bg-slate-950/70 flex flex-wrap gap-3">
-              <button onClick={() => generateQR(puzzle)} className="rounded-2xl bg-purple-900/80 px-4 py-2 text-sm text-purple-100 transition hover:bg-purple-800/90">📱 QR</button>
+              <button onClick={() => router.push('/admin/game-hubs')} className="rounded-2xl bg-purple-900/80 px-4 py-2 text-sm text-purple-100 transition hover:bg-purple-800/90">Hub QR</button>
               <button onClick={() => buildEditForm(puzzle)} className="rounded-2xl bg-blue-900/80 px-4 py-2 text-sm text-blue-100 transition hover:bg-blue-800/90">✏️ Edit</button>
               <button onClick={() => handleDelete(puzzle.id)} className="rounded-2xl bg-red-900/70 px-4 py-2 text-sm text-red-100 transition hover:bg-red-800/90">🗑️ Delete</button>
               <span className="ml-auto rounded-full bg-white/5 px-3 py-1 text-xs text-purple-300">{puzzle._count?.submissions || 0} solved</span>

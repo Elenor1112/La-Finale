@@ -8,11 +8,15 @@ import { motion } from 'framer-motion';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-  { href: '/admin/puzzles', label: 'Puzzles', icon: '🧩' },
+  { href: '/admin/game-hubs', label: 'Game Hubs', icon: '🏢' },
+  { href: '/admin/photo-puzzles', label: 'Puzzles', icon: '🧩' },
+  { href: '/admin/trivia-categories', label: 'Trivia Categories', icon: '🌍' },
+  { href: '/admin/trivia-questions', label: 'Trivia Questions', icon: '🧠' },
   { href: '/admin/players', label: 'Players', icon: '👥' },
   { href: '/admin/submissions', label: 'Submissions', icon: '📝' },
-  { href: '/admin/qr-generator', label: 'QR Generator', icon: '🔳' },
+  { href: '/admin/app-settings', label: 'Settings', icon: '⚙️' },
 ];
+
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();

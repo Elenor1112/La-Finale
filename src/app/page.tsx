@@ -1,33 +1,125 @@
 'use client';
+
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import QRScanner from '@/components/QRScanner';
+
+function useAppSettings(setLeaderboardVisible: (visible: boolean) => void) {
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (mounted && typeof data.leaderboardVisible === 'boolean') {
+          setLeaderboardVisible(data.leaderboardVisible);
+        }
+      } catch {
+        // Use the default setting if the API is unavailable.
+      }
+    }
+
+    loadSettings();
+    return () => {
+      mounted = false;
+    };
+  }, [setLeaderboardVisible]);
+}
+
+function extractQuestCode(rawValue: string) {
+  const value = rawValue.trim();
+  if (!value) return '';
+
+  try {
+    const url = new URL(value, window.location.origin);
+    const parts = url.pathname.split('/').filter(Boolean);
+    const questIndex = parts.findIndex((part) => part.toLowerCase() === 'quest');
+
+    if (questIndex >= 0 && parts[questIndex + 1]) {
+      return decodeURIComponent(parts[questIndex + 1]).trim().toUpperCase();
+    }
+
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) {
+      return decodeURIComponent(parts[parts.length - 1] || '').trim().toUpperCase();
+    }
+  } catch {
+    // Fall through to plain code parsing.
+  }
+
+  const withoutQuery = value.split('?')[0].split('#')[0];
+  const parts = withoutQuery.split('/').filter(Boolean);
+  return decodeURIComponent(parts[parts.length - 1] || withoutQuery).trim().toUpperCase();
+}
 
 export default function HomePage() {
   const router = useRouter();
   const [showQRModal, setShowQRModal] = useState(false);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  function handleQRSuccess(code: string) {
+  useAppSettings(setLeaderboardVisible);
+
+  async function openHub(code: string) {
+    const cleanCode = extractQuestCode(code);
+    if (!cleanCode) {
+      setShowQRModal(false);
+      setErrorMsg('That QR code does not contain a Herts Quest hub code.');
+      return;
+    }
+
+    const res = await fetch(`/api/quest/hub?code=${encodeURIComponent(cleanCode)}`);
+    if (!res.ok) {
+      setShowQRModal(false);
+      setErrorMsg(`Invalid Quest Code "${cleanCode}". Please scan an active campus QR code.`);
+      return;
+    }
+
+    const data = await res.json();
+    if (!data.valid || !data.hub?.code) {
+      setShowQRModal(false);
+      setErrorMsg(`Invalid Quest Code "${cleanCode}". Please scan an active campus QR code.`);
+      return;
+    }
+
     setShowQRModal(false);
-    router.push(`/quest/${code}`);
+    router.push(`/quest/${data.hub.code}`);
+  }
+
+  async function handleQRSuccess(rawCode: string) {
+    if (isValidating) return;
+    setIsValidating(true);
+    setErrorMsg('');
+
+    try {
+      await openHub(rawCode);
+    } catch {
+      setShowQRModal(false);
+      setErrorMsg('Network error validating the QR code. Please try again.');
+    } finally {
+      setIsValidating(false);
+    }
+  }
+
+  async function handlePlayNow() {
+    setShowQRModal(true);
+    setErrorMsg('');
   }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
-      {/* Floating orbs */}
       <div className="absolute top-16 left-8 w-24 h-24 rounded-full bg-purple-600/20 blur-2xl animate-float" />
       <div className="absolute bottom-24 right-8 w-32 h-32 rounded-full bg-amber-500/15 blur-2xl animate-float" style={{ animationDelay: '1s' }} />
       <div className="absolute top-1/2 left-4 w-16 h-16 rounded-full bg-emerald-500/10 blur-xl animate-float" style={{ animationDelay: '2s' }} />
 
-      {/* Hero */}
       <div className="text-center animate-slide-up max-w-sm w-full">
-        {/* Logo */}
         <div className="relative inline-block mb-6">
           <div className="w-28 h-28 rounded-3xl btn-shimmer flex items-center justify-center mx-auto shadow-2xl glow-border">
-            <span className="text-6xl">🗺️</span>
+            <span className="font-display text-4xl text-white">HQ</span>
           </div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center animate-bounce text-black font-bold text-xs">✦</div>
         </div>
 
         <h1 className="font-display text-6xl text-white mb-2 tracking-wide">
@@ -37,62 +129,70 @@ export default function HomePage() {
           </span>
         </h1>
         <p className="text-purple-300 text-lg mb-10 font-body">
-          Explore. Solve. Conquer. 🏆
+          Explore. Solve. Conquer.
         </p>
 
-        {/* Action cards */}
         <div className="space-y-4 w-full">
-          <Link href="/leaderboard" className="block quest-card p-5 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:glow-gold group">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">🏆</div>
-              <div className="text-left">
-                <div className="font-display text-xl text-amber-400">Leaderboard</div>
-                <div className="text-purple-300 text-sm">See who's winning</div>
-              </div>
-              <div className="ml-auto text-purple-400 text-xl">→</div>
-            </div>
-          </Link>
-
           <button
-            onClick={() => setShowQRModal(true)}
-            className="quest-card p-5 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1 hover:glow-purple group cursor-pointer w-full text-left border"
+            onClick={handlePlayNow}
+            className="block w-full quest-card p-5 hover:border-emerald-500/50 transition-all duration-300 hover:-translate-y-1 group text-left border border-purple-700/20"
           >
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">📱</div>
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-xl font-display text-emerald-300 group-hover:scale-110 transition-transform">Go</div>
               <div className="text-left">
-                <div className="font-display text-xl text-purple-300">Scan a QR Code</div>
-                <div className="text-purple-400 text-sm">Find one around campus</div>
+                <div className="font-display text-xl text-white">Play Now</div>
+                <div className="text-purple-300 text-sm">Scan a QR code to enter a Game Hub</div>
               </div>
-              <div className="ml-auto text-purple-400 text-xl">→</div>
+              <div className="ml-auto text-purple-400 text-xl">-&gt;</div>
             </div>
           </button>
-        </div>
 
-        {/* Stats teaser */}
-        <div className="mt-10 grid grid-cols-3 gap-3">
-          {[
-            { icon: '🧩', label: 'Puzzles' },
-            { icon: '⚡', label: 'Points' },
-            { icon: '🎯', label: 'Quests' },
-          ].map((item) => (
-            <div key={item.label} className="quest-card p-3 text-center">
-              <div className="text-2xl mb-1">{item.icon}</div>
-              <div className="text-purple-300 text-xs">{item.label}</div>
-            </div>
-          ))}
+          {leaderboardVisible && (
+            <Link href="/leaderboard" className="block quest-card p-5 hover:border-amber-500/50 transition-all duration-300 hover:-translate-y-1 hover:glow-gold group">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center text-xl font-display text-amber-300 group-hover:scale-110 transition-transform">#1</div>
+                <div className="text-left">
+                  <div className="font-display text-xl text-amber-400">Leaderboard</div>
+                  <div className="text-purple-300 text-sm">See the rankings</div>
+                </div>
+                <div className="ml-auto text-purple-400 text-xl">-&gt;</div>
+              </div>
+            </Link>
+          )}
         </div>
-
-        <p className="mt-10 text-purple-500 text-xs">
-          Scan QR codes around campus to begin your quest
-        </p>
       </div>
 
-      {/* QR Scanner Modal */}
       {showQRModal && (
         <QRScanner
           onSuccess={handleQRSuccess}
           onClose={() => setShowQRModal(false)}
         />
+      )}
+
+      {errorMsg && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
+          <div className="bg-slate-900 rounded-3xl p-6 max-w-sm w-full border border-red-500/40 text-center shadow-2xl relative">
+            <h3 className="font-display text-2xl text-white mb-2">Game Hub Unavailable</h3>
+            <p className="text-purple-300 text-sm mb-6 leading-relaxed">
+              {errorMsg}
+            </p>
+            <button
+              onClick={() => setErrorMsg('')}
+              className="w-full rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 py-3 text-white font-semibold shadow-lg hover:brightness-110 transition-all"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isValidating && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-[60]">
+          <div className="quest-card p-8 rounded-3xl max-w-xs w-full text-center shadow-2xl flex flex-col items-center">
+            <div className="w-12 h-12 rounded-full border-4 border-purple-500 border-t-transparent animate-spin mb-4" />
+            <p className="text-purple-300 font-display text-lg animate-pulse">Loading Game Hub...</p>
+          </div>
+        </div>
       )}
     </main>
   );

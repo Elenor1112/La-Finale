@@ -45,3 +45,22 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update player' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  if (!isAdminRequest(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { id } = await req.json();
+  if (!id) {
+    return NextResponse.json({ error: 'Missing player ID' }, { status: 400 });
+  }
+
+  try {
+    await prisma.submission.deleteMany({ where: { playerId: id } });
+    await prisma.player.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: 'Failed to delete player' }, { status: 500 });
+  }
+}

@@ -295,6 +295,68 @@ async function main() {
 
   console.log('✅ Created sample submissions');
 
+  // Ensure app settings exist
+  try {
+    await prisma.appSettings.upsert({
+      where: { id: 1 },
+      update: {},
+      create: { leaderboardVisible: true },
+    });
+    console.log('✅ Ensured AppSettings');
+  } catch (e) {
+    console.log('⚠️ Could not create AppSettings (maybe already exists)');
+  }
+
+  try {
+    await prisma.gameHub.upsert({
+      where: { code: 'WELCOME2026' },
+      update: {
+        name: 'Welcome Week Hub',
+        enabledGames: JSON.stringify(['trivia', 'puzzle']),
+        triviaEnabled: true,
+        puzzleEnabled: true,
+      },
+      create: {
+        name: 'Welcome Week Hub',
+        code: 'WELCOME2026',
+        enabledGames: JSON.stringify(['trivia', 'puzzle']),
+        triviaEnabled: true,
+        puzzleEnabled: true,
+      },
+    });
+    console.log('✅ Ensured default Game Hub: WELCOME2026');
+  } catch (e) {
+    console.log('⚠️ Could not create default Game Hub');
+  }
+
+  // Default trivia categories
+  const defaultCategories = ['Geography', 'Egyptian Trivia', 'Memory Challenge', 'Movies & TV', 'Sports Trivia'];
+  for (const name of defaultCategories) {
+    try {
+      await prisma.triviaCategory.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      });
+      console.log('✅ Ensured category:', name);
+    } catch {}
+  }
+
+  // Sample PhotoPuzzle
+  try {
+    await prisma.photoPuzzle.create({
+      data: {
+        title: 'Mysterious Campus Clock',
+        imageUrl: '/puzzles/clock.jpg',
+        question: 'What time is the clock showing?',
+        answer: '3:15',
+        points: 15,
+        active: true,
+      },
+    });
+    console.log('✅ Created sample PhotoPuzzle');
+  } catch {}
+
   console.log('');
   console.log('═══════════════════════════════════════════════════════════');
   console.log('✨ Database seeding completed successfully!');

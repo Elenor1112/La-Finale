@@ -52,3 +52,54 @@ model Submission {
 
   @@unique([playerId, puzzleId])
 }
+
+model AppSettings {
+  id                 Int     @id @default(1)
+  leaderboardVisible Boolean @default(true)
+}
+
+model TriviaCategory {
+  id        Int              @id @default(autoincrement())
+  name      String           @unique
+  questions TriviaQuestion[]
+}
+
+model TriviaQuestion {
+  id         Int    @id @default(autoincrement())
+  categoryId Int
+
+  question   String
+  optionA    String
+  optionB    String
+  optionC    String
+  optionD    String
+
+  correct    String
+  points     Int    @default(10)
+  order      Int    @default(0)
+
+  category   TriviaCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model PhotoPuzzle {
+  id       Int     @id @default(autoincrement())
+  title    String
+
+  imageUrl String
+  question String
+  answer   String
+
+  points   Int     @default(15)
+  active   Boolean @default(true)
+}
+
+model GameHub {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  enabledGames  String   @default("[\"trivia\",\"puzzle\"]")
+  triviaEnabled Boolean  @default(true)
+  puzzleEnabled Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

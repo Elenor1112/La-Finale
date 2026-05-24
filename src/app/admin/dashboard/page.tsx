@@ -74,7 +74,8 @@ export default function AdminDashboardPage() {
           <p className="mt-3 max-w-2xl text-purple-300">A real-time view of players, submissions, top content, and recent puzzle activity.</p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link href="/admin/puzzles" className="rounded-2xl bg-purple-600/80 px-5 py-3 text-white transition hover:bg-purple-500/90">Manage Puzzles</Link>
+          <Link href="/admin/photo-puzzles" className="rounded-2xl bg-purple-600/80 px-5 py-3 text-white transition hover:bg-purple-500/90">Manage Puzzles</Link>
+          <Link href="/admin/game-hubs" className="rounded-2xl bg-purple-900/80 px-5 py-3 text-white transition hover:bg-purple-800/90">Game Hubs</Link>
           <Link href="/admin/players" className="rounded-2xl bg-amber-500/90 px-5 py-3 text-slate-950 transition hover:bg-amber-400">Player Hub</Link>
         </div>
       </div>

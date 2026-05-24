@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
 
   const [players, puzzles, submissions, triviaCount] = await Promise.all([
     prisma.player.count(),
-    prisma.puzzle.count(),
+    prisma.photoPuzzle.count(),
     prisma.submission.count(),
-    prisma.puzzle.count({ where: { type: 'trivia' } }),
+    prisma.triviaQuestion.count(),
   ]);
 
   const mostSolvedGroup = await prisma.submission.groupBy({

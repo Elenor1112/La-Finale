@@ -32,6 +32,7 @@ export default function QuestClient({ puzzle }: { puzzle: Puzzle }) {
   const [showHint, setShowHint] = useState(false);
   const [pointsEarned, setPointsEarned] = useState(0);
   const [attempts, setAttempts] = useState(0);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(true);
 
   const isPuzzle = puzzle.type === 'puzzle';
   const choices = Array.isArray(puzzle.choices) ? puzzle.choices : puzzle.choices ? JSON.parse(puzzle.choices) : [];
@@ -43,6 +44,14 @@ export default function QuestClient({ puzzle }: { puzzle: Puzzle }) {
       setPlayerName(saved);
       setPhase('quiz');
     }
+    (async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (typeof data.leaderboardVisible === 'boolean') setLeaderboardVisible(data.leaderboardVisible);
+      } catch {}
+    })();
   }, []);
 
   async function handleNameSubmit(e: React.FormEvent) {
@@ -322,9 +331,11 @@ export default function QuestClient({ puzzle }: { puzzle: Puzzle }) {
           </div>
 
           <div className="space-y-3">
-            <Link href="/leaderboard" className="block w-full btn-shimmer py-3 rounded-xl text-white font-display text-xl text-center hover:scale-105 transition-transform">
-              🏆 View Leaderboard
-            </Link>
+            {leaderboardVisible && (
+              <Link href="/leaderboard" className="block w-full btn-shimmer py-3 rounded-xl text-white font-display text-xl text-center hover:scale-105 transition-transform">
+                🏆 View Leaderboard
+              </Link>
+            )}
             <Link href="/" className="block w-full quest-card py-3 rounded-xl text-purple-300 font-display text-xl text-center hover:text-white transition-colors">
               🗺️ Back to Home
             </Link>
@@ -356,9 +367,11 @@ export default function QuestClient({ puzzle }: { puzzle: Puzzle }) {
           <h1 className="font-display text-4xl text-amber-400 mb-2">Already Solved!</h1>
           <p className="text-purple-300 mb-6">You've already completed this quest, {playerName}!</p>
           <div className="space-y-3">
-            <Link href="/leaderboard" className="block w-full btn-shimmer py-3 rounded-xl text-white font-display text-xl text-center">
-              🏆 Leaderboard
-            </Link>
+            {leaderboardVisible && (
+              <Link href="/leaderboard" className="block w-full btn-shimmer py-3 rounded-xl text-white font-display text-xl text-center">
+                🏆 Leaderboard
+              </Link>
+            )}
             <Link href="/" className="block w-full quest-card py-3 rounded-xl text-purple-300 font-display text-xl text-center">
               🗺️ Home
             </Link>

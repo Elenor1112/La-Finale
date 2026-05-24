@@ -52,6 +52,19 @@ export default function AdminPlayersPage() {
     setActionLoading('');
   }
 
+  async function handleDelete(id: string) {
+    setActionLoading(id);
+    const res = await fetch('/api/admin/players', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setPlayers((current) => current.filter((player) => player.id !== id));
+    }
+    setActionLoading('');
+  }
+
   return (
     <main className="min-h-screen px-4 py-8 max-w-6xl mx-auto">
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -114,6 +127,13 @@ export default function AdminPlayersPage() {
                   className="rounded-2xl bg-red-900/70 px-4 py-2 text-sm text-red-100 transition hover:bg-red-800/90 disabled:opacity-60"
                 >
                   Reset Progress
+                </button>
+                <button
+                  onClick={() => handleDelete(player.id)}
+                  disabled={actionLoading === player.id}
+                  className="rounded-2xl bg-rose-900/70 px-4 py-2 text-sm text-rose-100 transition hover:bg-rose-800/90 disabled:opacity-60"
+                >
+                  Delete Player
                 </button>
               </div>
             </div>
