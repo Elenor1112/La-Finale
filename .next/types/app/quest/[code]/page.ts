@@ -1,4 +1,4 @@
-// File: C:\Users\Fahd\Desktop\herts-quest\src\app\quest\[code]\page.tsx
+// File: D:\herts-quest\src\app\quest\[code]\page.tsx
 import * as entry from '../../../../../src/app/quest/[code]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

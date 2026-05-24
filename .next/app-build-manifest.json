@@ -1,55 +1,15 @@
 {
   "pages": {
-    "/admin/players/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/players/page.js"
-    ],
-    "/admin/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/layout.js"
+      "static/chunks/app/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
-    ],
-    "/admin/submissions/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/submissions/page.js"
-    ],
-    "/admin/app-settings/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/app-settings/page.js"
-    ],
-    "/admin/dashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/dashboard/page.js"
-    ],
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
-    ],
-    "/leaderboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/leaderboard/page.js"
-    ],
-    "/admin/game-hubs/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/game-hubs/page.js"
-    ],
-    "/admin/photo-puzzles/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/photo-puzzles/page.js"
     ],
     "/quest/[code]/page": [
       "static/chunks/webpack.js",
@@ -61,20 +21,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/quest/[code]/not-found.js"
     ],
-    "/quest/[code]/puzzle/page": [
+    "/quest/[code]/trivia/[categoryId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/quest/[code]/puzzle/page.js"
+      "static/chunks/app/quest/[code]/trivia/[categoryId]/page.js"
     ],
-    "/admin/trivia-categories/page": [
+    "/leaderboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/trivia-categories/page.js"
-    ],
-    "/admin/trivia-questions/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/trivia-questions/page.js"
+      "static/chunks/app/leaderboard/page.js"
     ]
   }
 }

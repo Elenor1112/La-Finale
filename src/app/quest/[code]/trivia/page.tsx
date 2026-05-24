@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { isGameEnabled } from '@/lib/game-hubs';
+import TriviaCategoryCard from '@/components/TriviaCategoryCard';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const dynamic = 'force-dynamic';
 
@@ -46,19 +50,13 @@ export default async function TriviaIndex({ params }: { params: { code: string }
       ) : (
         <div className="space-y-3">
           {categories.map((c) => (
-            <Link
+            <TriviaCategoryCard
               key={c.id}
-              href={`/quest/${params.code}/trivia/${c.id}`}
-              className="block quest-card p-5 border border-purple-700/20 hover:border-purple-500/50 transition-all duration-300 hover:-translate-y-1 group"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">📚</div>
-                <div className="flex-1">
-                  <div className="font-display text-lg text-white">{c.name}</div>
-                </div>
-                <div className="text-purple-400 group-hover:text-amber-400 text-xl transition-colors">→</div>
-              </div>
-            </Link>
+              categoryId={c.id}
+              categoryName={c.name}
+              code={params.code}
+              variant="full"
+            />
           ))}
         </div>
       )}

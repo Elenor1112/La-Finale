@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type Question = {
   id: number;
@@ -22,9 +23,10 @@ type AnswerResult = {
   selectedAnswer: string;
 };
 
-type Phase = 'loading' | 'name' | 'quiz' | 'submitting' | 'complete';
+type Phase = 'loading' | 'name' | 'quiz' | 'submitting' | 'complete' | 'completed_before';
 
 export default function TriviaCategoryPage({ params }: { params: { code: string; categoryId: string } }) {
+  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
@@ -51,7 +53,8 @@ export default function TriviaCategoryPage({ params }: { params: { code: string;
           const saved = localStorage.getItem('hq_player_name');
           if (saved) {
             setPlayerName(saved);
-            setPhase('quiz');
+            // Check if this player has already completed this category
+            await checkCompletion(saved);
           } else {
             setPhase('name');
           }
@@ -63,6 +66,26 @@ export default function TriviaCategoryPage({ params }: { params: { code: string;
       }
     })();
   }, [params.categoryId, params.code]);
+
+  async function checkCompletion(name: string) {
+    try {
+      const res = await fetch(
+        `/api/quest/trivia/category-completion?categoryId=${params.categoryId}&code=${encodeURIComponent(params.code)}&playerName=${encodeURIComponent(name)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.completed) {
+          setPhase('completed_before');
+        } else {
+          setPhase('quiz');
+        }
+      } else {
+        setPhase('quiz');
+      }
+    } catch {
+      setPhase('quiz');
+    }
+  }
 
   function handleNameSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -154,6 +177,49 @@ export default function TriviaCategoryPage({ params }: { params: { code: string;
         <div className="quest-card p-8 text-center max-w-xs w-full">
           <div className="w-12 h-12 rounded-full border-4 border-purple-500 border-t-transparent animate-spin mx-auto mb-4" />
           <p className="text-purple-300 font-display text-lg animate-pulse">Loading Quiz...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Already completed state
+  if (phase === 'completed_before') {
+    return (
+      <main className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+        <div className="absolute top-16 left-8 w-24 h-24 rounded-full bg-purple-600/20 blur-2xl animate-float" />
+        <div className="absolute bottom-24 right-8 w-32 h-32 rounded-full bg-amber-500/15 blur-2xl animate-float" style={{ animationDelay: '1s' }} />
+
+        <div className="max-w-sm w-full animate-slide-up">
+          <div className="quest-card p-6 shadow-2xl text-center border border-purple-700/20">
+            <div className="text-6xl mb-3">✅</div>
+            <h1 className="font-display text-3xl text-white mb-2">Already Completed!</h1>
+            <p className="text-purple-400 text-lg mb-6">You've already completed this category.</p>
+            
+            <div className="quest-card p-4 mb-6 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+              <p className="text-amber-200 text-sm">Each category can only be played once to ensure fair leaderboard rankings.</p>
+            </div>
+
+            <div className="space-y-3">
+              <Link
+                href="/leaderboard"
+                className="block w-full rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-3 text-center text-slate-950 font-semibold shadow-lg hover:brightness-110 transition-all"
+              >
+                🏆 View Leaderboard
+              </Link>
+              <Link
+                href={`/quest/${params.code}`}
+                className="block w-full rounded-2xl border border-purple-700/40 bg-purple-900/60 py-3 text-center text-white transition hover:bg-purple-900/80"
+              >
+                ← Back to Hub
+              </Link>
+              <Link
+                href="/"
+                className="block w-full text-center text-purple-500 text-sm hover:text-white transition-colors py-2"
+              >
+                Go Home
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
     );

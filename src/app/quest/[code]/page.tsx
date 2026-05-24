@@ -2,10 +2,16 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { isGameEnabled } from '@/lib/game-hubs';
+import { headers } from 'next/headers';
+import TriviaCategoryCard from '@/components/TriviaCategoryCard';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function QuestLanding({ params }: { params: { code: string } }) {
+  // Ensure no caching by setting response headers
+  const headersList = headers();
+  
   const code = params.code.toUpperCase();
 
   const hub = await prisma.gameHub.findUnique({ where: { code } });
@@ -66,14 +72,12 @@ export default async function QuestLanding({ params }: { params: { code: string 
               {triviaCategories.length > 0 ? (
                 <div className="grid gap-2">
                   {triviaCategories.map((c) => (
-                    <Link
+                    <TriviaCategoryCard
                       key={c.id}
-                      href={`/quest/${code}/trivia/${c.id}`}
-                      className="flex items-center justify-between p-3 rounded-2xl border border-purple-700/30 bg-purple-950/40 text-white hover:bg-purple-900/50 hover:border-purple-500/50 transition-all group"
-                    >
-                      <span className="font-semibold text-sm">{c.name}</span>
-                      <span className="text-purple-400 group-hover:text-amber-400 transition-colors text-lg">→</span>
-                    </Link>
+                      categoryId={c.id}
+                      categoryName={c.name}
+                      code={code}
+                    />
                   ))}
                 </div>
               ) : (
